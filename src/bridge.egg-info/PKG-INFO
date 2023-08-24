@@ -1,0 +1,16 @@
+Metadata-Version: 2.1
+Name: bridge
+Version: 1.0.0
+Summary: A python package that interacts with safaricom daraja api
+Home-page: https://github.com/webala/bridgepy
+Author: Daniel Webala
+Author-email: webd01@protonmail.com
+Project-URL: Bug Tracker, https://github.com/webala/bridgepy/issues
+Project-URL: repository, https://github.com/webala/bridgepy
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Development Status :: 4 - Beta
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENCE.txt

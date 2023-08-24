@@ -1,0 +1,10 @@
+LICENCE.txt
+README.txt
+pyproject.toml
+setup.cfg
+src/bridge/__init__.py
+src/bridge/bridge.py
+src/bridge.egg-info/PKG-INFO
+src/bridge.egg-info/SOURCES.txt
+src/bridge.egg-info/dependency_links.txt
+src/bridge.egg-info/top_level.txt
