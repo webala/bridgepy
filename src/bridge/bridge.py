@@ -45,12 +45,19 @@ class Bridge:
             response.raise_for_status()
 
             json_res = response.json()
-            access_token = json_res.get("access_token")
+            # access_token = json_res.get("access_token")
 
-            return access_token
+            return json_res
 
         except requests.exceptions.RequestException as e:
-            print("Authenticate error: ", e)
+            if hasattr(e, "response") and e.response is not None:
+                print(
+                    "Authenticate errored out with code",
+                    e.response.status_code,
+                    e.response,
+                )
+            else:
+                print("An error occurred: ", e)
 
     def _generate_payload(self, phone_number, transaction_description, amount=1):
         """
@@ -80,7 +87,8 @@ class Bridge:
         }
 
     def initialize_stk(self, phone_number, transaction_description):
-        access_token = self.authenticate()
+        auth = self.authenticate()
+        access_token = auth.get("access_token")
         headers = {"Authorization": f"Bearer {access_token}"}
         payload = self._generate_payload(phone_number, transaction_description)
 
@@ -98,21 +106,14 @@ class Bridge:
 
         except requests.exceptions.RequestException as e:
             if hasattr(e, "response") and e.response is not None:
-                print("Initiate stk push errored out with code", e.response.status_code)
-                print(json.loads(e.response.text))
+                print(
+                    "Initiate stk push errored out with code",
+                    e.response.status_code,
+                    e.response,
+                )
             else:
                 print("An error occurred: ", e)
+            return None
 
 
-bridge = Bridge(
-    consumer_key=os.getenv("CONSUMER_KEY"),
-    consumer_secret=os.getenv("CONSUMER_SECRET"),
-    business_shortcode=os.getenv("SHORT_CODE"),
-    passkey=os.getenv("PASSKEY"),
-    app_name="bridge",
-    callback_url="https://callback.url.com",
-)
 
-print(
-    bridge.initialize_stk("254791055897", "Bridge first test")
-)
