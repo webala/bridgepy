@@ -42,10 +42,11 @@ class Bridge:
                 self.auth_url,
                 auth=HTTPBasicAuth(self.consumer_key, self.consumer_secret),
             )
+
             response.raise_for_status()
 
             json_res = response.json()
-            # access_token = json_res.get("access_token")
+            
 
             return json_res
 
@@ -58,6 +59,10 @@ class Bridge:
                 )
             else:
                 print("An error occurred: ", e)
+            
+            return None
+            
+            
 
     def _generate_payload(self, phone_number, transaction_description, amount=1):
         """
@@ -88,32 +93,47 @@ class Bridge:
 
     def initialize_stk(self, phone_number, transaction_description):
         auth = self.authenticate()
-        access_token = auth.get("access_token")
-        headers = {"Authorization": f"Bearer {access_token}"}
-        payload = self._generate_payload(phone_number, transaction_description)
+        if auth:
+            access_token = auth.get("access_token")
+            headers = {"Authorization": f"Bearer {access_token}"}
+            payload = self._generate_payload(phone_number, transaction_description)
 
-        try:
-            response = requests.post(self.stk_url, headers=headers, json=payload)
-            json_res = json.loads(response.text)
+            try:
+                response = requests.post(self.stk_url, headers=headers, json=payload)
 
-            return {
-                "merchant_request_id": json_res.get("MerchantRequestID"),
-                "chechout_request_id": json_res.get("CheckoutRequestID"),
-                "response_code": json_res.get("ResponseCode"),
-                "response_description": json_res.get("ResponseDescription"),
-                "customer_meaasge": json_res.get("CustomerMessage"),
-            }
+                response.raise_for_status()
 
-        except requests.exceptions.RequestException as e:
-            if hasattr(e, "response") and e.response is not None:
-                print(
-                    "Initiate stk push errored out with code",
-                    e.response.status_code,
-                    e.response,
-                )
-            else:
-                print("An error occurred: ", e)
-            return None
+                json_res = json.loads(response.text)
+
+                return {
+                    "merchant_request_id": json_res.get("MerchantRequestID"),
+                    "chechout_request_id": json_res.get("CheckoutRequestID"),
+                    "response_code": json_res.get("ResponseCode"),
+                    "response_description": json_res.get("ResponseDescription"),
+                    "customer_meaasge": json_res.get("CustomerMessage"),
+                }
+
+            except requests.exceptions.RequestException as e:
+                if hasattr(e, "response") and e.response is not None:
+                    print(
+                        "Initiate stk push errored out with code",
+                        e.response.status_code,
+                        e.response.body,
+                    )
+                    string_response = e.response.text()
+                    
+                    return {
+                        "response_code": e.response.status_code,
+                        "response_description": "Initiate stk errored out"
+                    }
+                else:
+                    print("An error occurred: ", e)
+                    return None
+            
+        return {
+            "response_code": 401,
+            "response_descripion": "Authentication error"
+        }
 
 
 

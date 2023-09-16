@@ -49,4 +49,18 @@ class TestBridge(unittest.TestCase):
         response_code = response.get("response_code")
         self.assertEqual(response_code, "0")
 
+    def test_wrong_phone_number_response(self):
+        bridge = daraja.Bridge(
+            consumer_key=os.getenv("CONSUMER_KEY"),
+            consumer_secret=os.getenv("CONSUMER_SECRET"),
+            business_shortcode=os.getenv("SHORT_CODE"),
+            passkey=os.getenv("PASSKEY"),
+            app_name="bridge",
+            callback_url="https://callback.url.com",
+        )
+        response = bridge.initialize_stk("91055897", "Test wrong phone number response")
+        print('wrong phone res: ', response)
+      #   response_code = response.get("response_code")
+      #   self.assertEqual(response_code, "0")
+
 
