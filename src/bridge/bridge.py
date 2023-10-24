@@ -55,7 +55,7 @@ class Bridge:
                 print(
                     "Authenticate errored out with code",
                     e.response.status_code,
-                    e.response,
+                    e.response.json(),
                 )
             else:
                 print("An error occurred: ", e)
@@ -118,9 +118,9 @@ class Bridge:
                     print(
                         "Initiate stk push errored out with code",
                         e.response.status_code,
-                        e.response.body,
+                        e.response.json(),
                     )
-                    string_response = e.response.text()
+                    # string_response = e.response.text()
                     
                     return {
                         "response_code": e.response.status_code,
@@ -134,6 +134,48 @@ class Bridge:
             "response_code": 401,
             "response_descripion": "Authentication error"
         }
+    
+    def get_transaction_status(self, transactionId):
+        auth = self.authenticate()
+        access_token = auth.get("access_token")
+        headers = {"Authorization": f"Bearer {access_token}"}
+
+        payload = {
+            "Initiator":"testapiuser",
+            "SecurityCredential": SECURITY_CREDENTIAL,
+            "CommandID": "TransactionStatusQuery",
+            "TransactionID": transactionId,
+            # "OriginatorConversationID":"AG_20190826_0000777ab7d848b9e721",
+            "PartyA":"600782",
+            "IdentifierType":"4",
+            "ResultURL": f"{CALLBACK_BASE_URL}/result",
+            "QueueTimeOutURL":f"{CALLBACK_BASE_URL}/queue",
+            "Remarks":"OK",
+            "Occasion":"OK",
+        }
+
+        try:
+            response = requests.post(TRANSACTION_STATUS_ENDPOINT, headers=headers, json=payload)
+            response.raise_for_status()
+            json_res = json.loads(response.text)
+            formatted_data = json.dumps(json_res, indent=4)
+            print(formatted_data)
+
+        except requests.exceptions.RequestException as e:
+            if hasattr(e, "response") and e.response is not None:
+                print(
+                    "Get transaction status errored out with code",
+                    e.response.status_code,
+                    e.response.json()
+                )
+                
+                return {
+                    "response_code": e.response.status_code,
+                    "response_description": "Initiate stk errored out"
+                }
+            else:
+                print("An error occurred: ", e)
+                return None
 
 
 
